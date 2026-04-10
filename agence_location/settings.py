@@ -77,3 +77,5 @@ PAYPAL_CLIENT_ID = "AYNxEwD9IWMUuHVZTuzW7l2XfOsxxfZ15cRnb8XbyJTEp-PgHVRQ6qdvQfZ5
 PAYPAL_CLIENT_SECRET = "EL_zjaN_nGBnIMLHTmVoj_c_9a8fs0oR_Md_zB7VEfc9IcLkbNvnRXp0exWVPnLWAx7IJamxLI5vTYKf"
 
 PAYPAL_BASE_URL = "https://api-m.paypal.com"
+DEBUG = False
+ALLOWED_HOSTS = ['iiik1220.pythonanywhere.com']

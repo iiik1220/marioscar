@@ -1,0 +1,102 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+    .checkout-card {
+        max-width: 820px;
+        margin: 30px auto;
+        background: linear-gradient(145deg, #111111, #1a1a1a);
+        border: 1px solid rgba(255,255,255,0.07);
+        border-radius: 24px;
+        padding: 28px;
+        box-shadow: 0 12px 28px rgba(0,0,0,0.25);
+    }
+
+    .checkout-card h1 {
+        margin-bottom: 18px;
+        font-weight: 900;
+        color: #fff;
+    }
+
+    .checkout-info {
+        background: rgba(255,255,255,0.04);
+        border: 1px solid rgba(255,255,255,0.06);
+        border-radius: 16px;
+        padding: 16px;
+        margin-bottom: 22px;
+        color: #d2d2d2;
+    }
+
+    .checkout-info p {
+        margin-bottom: 8px;
+    }
+</style>
+
+<div class="checkout-card">
+    <h1>Paiement de la réservation</h1>
+
+    <div class="checkout-info">
+        <p><strong>Réservation :</strong> #{{ reservation.id }}</p>
+        <p><strong>Voiture :</strong> {{ reservation.car_model }}</p>
+        <p><strong>Unité :</strong> {{ reservation.car_unit|default:"-" }}</p>
+        <p><strong>Période :</strong> {{ reservation.date_debut }} → {{ reservation.date_fin }}</p>
+        <p><strong>Montant :</strong> {{ reservation.montant_total }} MAD</p>
+    </div>
+
+    <div id="paypal-button-container"></div>
+</div>
+
+<script src="https://www.paypal.com/sdk/js?client-id={{ PAYPAL_CLIENT_ID }}&currency=EUR"></script>
+<script>
+paypal.Buttons({
+    createOrder: function() {
+        return fetch("{% url 'paypal_create_order' reservation.id %}", {
+            method: "POST",
+            headers: {
+                "X-CSRFToken": "{{ csrf_token }}"
+            }
+        })
+        .then(function(res) {
+            return res.json();
+        })
+        .then(function(data) {
+            if (data.id) {
+                return data.id;
+            } else {
+                alert("Erreur création commande PayPal");
+                console.error(data);
+            }
+        });
+    },
+
+    onApprove: function(data) {
+        return fetch("{% url 'paypal_capture_order' reservation.id %}", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": "{{ csrf_token }}"
+            },
+            body: JSON.stringify({
+                orderID: data.orderID
+            })
+        })
+        .then(function(res) {
+            return res.json();
+        })
+        .then(function(data) {
+            if (data.status === "success") {
+                window.location.href = "{% url 'my_reservations' %}";
+            } else {
+                alert("Paiement non validé.");
+                console.error(data);
+            }
+        });
+    },
+
+    onError: function(err) {
+        console.error(err);
+        alert("Erreur pendant le paiement.");
+    }
+}).render('#paypal-button-container');
+</script>
+{% endblock %}

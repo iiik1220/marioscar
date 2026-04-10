@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
+    <h1>Gestion financière</h1>
+    <div class="d-flex gap-2 flex-wrap">
+        <a href="{% url 'dashboard_expense_add' %}" class="btn btn-red">Ajouter charge</a>
+        <a href="{% url 'dashboard_income_add' %}" class="btn btn-darkpro">Ajouter revenu</a>
+    </div>
+</div>
+
+<div class="row g-4 mb-4">
+    <div class="col-md-3"><div class="card p-3"><h6>CA</h6><h3>{{ chiffre_affaires }} DH</h3></div></div>
+    <div class="col-md-3"><div class="card p-3"><h6>Charges</h6><h3>{{ charges_totales }} DH</h3></div></div>
+    <div class="col-md-3"><div class="card p-3"><h6>Autres revenus</h6><h3>{{ autres_revenus }} DH</h3></div></div>
+    <div class="col-md-3"><div class="card p-3"><h6>Bénéfice net</h6><h3>{{ benefice_net }} DH</h3></div></div>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-6">
+        <div class="card p-3">
+            <h3 class="mb-3">Charges</h3>
+            <table class="table table-dark table-striped">
+                <thead>
+                    <tr>
+                        <th>Titre</th>
+                        <th>Voiture</th>
+                        <th>Montant</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for e in expenses %}
+                    <tr>
+                        <td>{{ e.titre }}</td>
+                        <td>{% if e.voiture %}{{ e.voiture }}{% else %}-{% endif %}</td>
+                        <td>{{ e.montant }} DH</td>
+                        <td>
+                            <a href="{% url 'dashboard_expense_edit' e.id %}" class="btn btn-sm btn-darkpro">Modifier</a>
+                            <a href="{% url 'dashboard_expense_delete' e.id %}" class="btn btn-sm btn-red">Supprimer</a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="4">Aucune charge.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="col-lg-6">
+        <div class="card p-3">
+            <h3 class="mb-3">Autres revenus</h3>
+            <table class="table table-dark table-striped">
+                <thead>
+                    <tr>
+                        <th>Titre</th>
+                        <th>Voiture</th>
+                        <th>Montant</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for i in incomes %}
+                    <tr>
+                        <td>{{ i.titre }}</td>
+                        <td>{% if i.voiture %}{{ i.voiture }}{% else %}-{% endif %}</td>
+                        <td>{{ i.montant }} DH</td>
+                        <td>
+                            <a href="{% url 'dashboard_income_edit' i.id %}" class="btn btn-sm btn-darkpro">Modifier</a>
+                            <a href="{% url 'dashboard_income_delete' i.id %}" class="btn btn-sm btn-red">Supprimer</a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="4">Aucun revenu.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

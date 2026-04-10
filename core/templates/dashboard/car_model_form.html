@@ -1,0 +1,48 @@
+{% extends 'dashboard/base_dashboard.html' %}
+{% block dashboard_content %}
+<div class="toolbar">
+    <div>
+        <h1 class="mb-1">{{ title }}</h1>
+        <p class="mini-muted mb-0">Créer ou modifier la fiche publique du véhicule</p>
+    </div>
+</div>
+
+<div class="form-panel">
+    <div class="help-box">
+        Cette fiche représente le modèle visible sur le site. Les voitures réelles se gèrent dans “Unités réelles”.
+    </div>
+
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.as_p }}
+
+        <hr class="my-4">
+        <h5 class="mb-3">Ajouter une image galerie (optionnel)</h5>
+        {{ image_form.as_p }}
+
+        <div class="d-flex gap-2 flex-wrap mt-4">
+            <button type="submit" class="btn btn-red">Enregistrer</button>
+            <a href="{% url 'dashboard_car_models' %}" class="btn btn-darkpro">Retour</a>
+        </div>
+    </form>
+</div>
+
+{% if car %}
+<div class="panel-card mt-4">
+    <h4 class="mb-3">Galerie actuelle</h4>
+    <div class="card-list">
+        {% for img in car.images.all %}
+        <div class="entity-card">
+            <img src="{{ img.image.url }}" alt="">
+            <div class="entity-card-body">
+                <div class="entity-title">{{ img.get_type_image_display }}</div>
+                <div class="entity-meta">{{ img.titre }}</div>
+            </div>
+        </div>
+        {% empty %}
+        <p class="mb-0">Aucune image galerie.</p>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,120 @@
+{% extends 'dashboard/base_dashboard.html' %}
+{% block dashboard_content %}
+<div class="toolbar">
+    <div>
+        <h1 class="mb-1">Gestion des réservations</h1>
+        <p class="mini-muted mb-0">Toutes les informations utiles visibles directement pour l’administration</p>
+    </div>
+    <a href="{% url 'dashboard_reservation_add' %}" class="btn btn-red">Ajouter réservation</a>
+</div>
+
+<div class="panel-card">
+    <div class="table-wrap">
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Client</th>
+                    <th>Téléphone</th>
+                    <th>Email</th>
+                    <th>CIN</th>
+                    <th>Permis</th>
+                    <th>Voiture</th>
+                    <th>Unité</th>
+                    <th>Transmission</th>
+                    <th>Période</th>
+                    <th>Type</th>
+                    <th>Avance</th>
+                    <th>Caution</th>
+                    <th>Total</th>
+                    <th>Statut</th>
+                    <th style="min-width: 170px;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for r in reservations %}
+                <tr>
+                    <td>#{{ r.id }}</td>
+
+                    <td><strong>{{ r.nom_complet }}</strong></td>
+
+                    <td>
+                        {% if r.telephone %}
+                            <a href="tel:{{ r.telephone }}" style="color: inherit; text-decoration: none;">
+                                {{ r.telephone }}
+                            </a>
+                        {% else %}
+                            -
+                        {% endif %}
+                    </td>
+
+                    <td>
+                        {% if r.email %}
+                            <a href="mailto:{{ r.email }}" style="color: inherit; text-decoration: none;">
+                                {{ r.email }}
+                            </a>
+                        {% else %}
+                            -
+                        {% endif %}
+                    </td>
+
+                    <td>{{ r.cin|default:"-" }}</td>
+                    <td>{{ r.numero_permis|default:"-" }}</td>
+                    <td>{{ r.car_model }}</td>
+
+                    <td>
+                        {% if r.car_unit %}
+                            {{ r.car_unit.immatriculation }}
+                        {% else %}
+                            -
+                        {% endif %}
+                    </td>
+
+                    <td>
+                        {% if r.requested_transmission == 'manuelle' %}
+                            Manuelle
+                        {% elif r.requested_transmission == 'automatique' %}
+                            Automatique
+                        {% elif r.requested_transmission %}
+                            {{ r.requested_transmission }}
+                        {% else %}
+                            Toutes
+                        {% endif %}
+                    </td>
+
+                    <td>
+                        <strong>{{ r.date_debut }}</strong> → <strong>{{ r.date_fin }}</strong>
+                    </td>
+
+                    <td>{{ r.get_type_reservation_display }}</td>
+                    <td>{{ r.avance }} DH</td>
+                    <td>{{ r.caution }} DH</td>
+                    <td>{{ r.montant_total }} DH</td>
+
+                    <td>
+                        {% if r.statut == 'confirmee' or r.statut == 'payee' %}
+                            <span class="positive">{{ r.get_statut_display }}</span>
+                        {% elif r.statut == 'annulee' or r.statut == 'refusee' %}
+                            <span class="negative">{{ r.get_statut_display }}</span>
+                        {% else %}
+                            <span>{{ r.get_statut_display }}</span>
+                        {% endif %}
+                    </td>
+
+                    <td>
+                        <div class="d-flex gap-2 flex-wrap">
+                            <a href="{% url 'dashboard_reservation_edit' r.id %}" class="btn btn-sm btn-darkpro">Modifier</a>
+                            <a href="{% url 'dashboard_reservation_delete' r.id %}" class="btn btn-sm btn-red">Supprimer</a>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="16">Aucune réservation.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

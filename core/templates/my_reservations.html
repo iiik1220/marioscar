@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2 class="mb-4">Mes réservations</h2>
+
+<div class="row g-4">
+    {% for r in reservations %}
+    <div class="col-md-6">
+        <div class="card shadow-sm border-0 rounded-4">
+            <div class="card-body">
+                <h5>{{ r.voiture.marque }} {{ r.voiture.modele }}</h5>
+                <p class="mb-1"><strong>Type :</strong> {{ r.get_type_reservation_display }}</p>
+                <p class="mb-1"><strong>Dates :</strong> {{ r.date_debut }} → {{ r.date_fin }}</p>
+                <p class="mb-1"><strong>Total :</strong> {{ r.montant_total }} DH</p>
+
+                {% if r.statut == 'en_attente' %}
+                    <span class="badge bg-secondary badge-status">En attente</span>
+                {% elif r.statut == 'confirmee' %}
+                    <span class="badge bg-success badge-status">Confirmée</span>
+                {% elif r.statut == 'annulee' %}
+                    <span class="badge bg-dark badge-status">Annulée</span>
+                {% elif r.statut == 'refusee' %}
+                    <span class="badge bg-danger badge-status">Refusée</span>
+                {% elif r.statut == 'paiement_en_attente' %}
+                    <span class="badge bg-warning text-dark badge-status">Paiement en attente</span>
+                {% elif r.statut == 'payee' %}
+                    <span class="badge bg-primary badge-status">Payée</span>
+                {% endif %}
+
+                <hr>
+
+                <div class="d-flex gap-2 flex-wrap">
+                    {% if r.peut_etre_annulee_par_client %}
+                        <a href="{% url 'cancel_reservation' r.id %}" class="btn btn-outline-danger btn-sm">
+                            Annuler
+                        </a>
+                    {% endif %}
+
+                    {% if r.statut == 'paiement_en_attente' %}
+                        <a href="{% url 'checkout' r.id %}" class="btn btn-success btn-sm">
+                            Payer maintenant
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="col-12">
+        <div class="alert alert-light border">
+            Vous n’avez encore aucune réservation.
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

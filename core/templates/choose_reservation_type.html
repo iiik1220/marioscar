@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+    .choice-wrap {
+        max-width: 950px;
+        margin: 0 auto;
+    }
+
+    .choice-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+    }
+
+    .choice-card {
+        background: linear-gradient(145deg, #111111, #1a1a1a);
+        border: 1px solid rgba(255,255,255,0.07);
+        border-radius: 24px;
+        padding: 26px;
+        box-shadow: 0 12px 28px rgba(0,0,0,0.25);
+    }
+
+    .choice-card h3 {
+        font-weight: 900;
+        margin-bottom: 10px;
+    }
+
+    .choice-card p {
+        color: #b3b3b3;
+        min-height: 90px;
+    }
+
+    .selected-box {
+        background: rgba(255,255,255,0.04);
+        border: 1px solid rgba(255,255,255,0.06);
+        border-radius: 14px;
+        padding: 12px 14px;
+        margin-bottom: 24px;
+        color: #d7d7d7;
+    }
+
+    @media (max-width: 768px) {
+        .choice-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<div class="choice-wrap">
+    <h1 class="mb-2">Choisir le type de réservation</h1>
+    <p class="mb-3">{{ voiture.marque }} {{ voiture.modele }}</p>
+
+    <div class="selected-box">
+        <strong>Transmission choisie :</strong>
+        {% if selected_transmission == 'manuelle' %}
+            Manuelle
+        {% elif selected_transmission == 'automatique' %}
+            Automatique
+        {% elif selected_transmission %}
+            {{ selected_transmission }}
+        {% else %}
+            Aucune
+        {% endif %}
+    </div>
+
+    <div class="choice-grid">
+        <div class="choice-card">
+            <h3>Réservation normale</h3>
+            <p>
+                Le client saisit ses informations et l’agence le recontacte ensuite.
+            </p>
+            <a href="{% url 'reservation_normal' voiture.id %}?transmission={{ selected_transmission }}" class="btn btn-red">Continuer</a>
+        </div>
+
+        <div class="choice-card">
+            <h3>Réservation complète</h3>
+            <p>
+                Le client connecté confirme ses dates et passe au paiement.
+            </p>
+            <a href="{% url 'reservation_complete' voiture.id %}?transmission={{ selected_transmission }}" class="btn btn-red">Continuer</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

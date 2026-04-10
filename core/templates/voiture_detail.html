@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2>{{ voiture.marque }} {{ voiture.modele }}</h2>
+
+<img src="{{ voiture.image.url }}" width="400">
+
+<p>Prix: {{ voiture.prix_par_jour }} DH</p>
+<p>Année: {{ voiture.annee }}</p>
+<p>Couleur: {{ voiture.couleur }}</p>
+<p>{{ voiture.description }}</p>
+
+<button class="btn btn-success">Réserver</button>
+{% endblock %}  

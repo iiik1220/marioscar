@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>Gestion des voitures</h1>
+    <a href="{% url 'dashboard_car_add' %}" class="btn btn-red">Ajouter voiture</a>
+</div>
+
+<div class="row g-4">
+    {% for car in cars %}
+    <div class="col-md-6 col-xl-4">
+        <div class="car-card">
+            <img src="{{ car.image_principale.url }}" alt="{{ car }}">
+            <div class="card-body">
+                <h4>{{ car.marque }} {{ car.modele }}</h4>
+                <p class="text-secondary">{{ car.annee }} • {{ car.transmission }} • {{ car.carburant }}</p>
+                <p><strong>Kilométrage :</strong> {{ car.kilometrage_actuel }} km</p>
+                <p><strong>Prochain entretien :</strong> {{ car.date_prochain_entretien|default:"-" }}</p>
+                <div class="d-flex gap-2 flex-wrap">
+                    <a href="{% url 'dashboard_car_edit' car.id %}" class="btn btn-darkpro">Modifier</a>
+                    <a href="{% url 'dashboard_car_delete' car.id %}" class="btn btn-red">Supprimer</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <p>Aucune voiture.</p>
+    {% endfor %}
+</div>
+{% endblock %}

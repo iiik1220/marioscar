@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>Pièces de rechange</h1>
+    <a href="{% url 'dashboard_part_add' %}" class="btn btn-red">Ajouter pièce</a>
+</div>
+
+<div class="card p-3">
+    <table class="table table-dark table-striped align-middle">
+        <thead>
+            <tr>
+                <th>Voiture</th>
+                <th>Pièce</th>
+                <th>Quantité</th>
+                <th>PU</th>
+                <th>Total</th>
+                <th>Date</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for p in parts %}
+            <tr>
+                <td>{{ p.voiture }}</td>
+                <td>{{ p.nom_piece }}</td>
+                <td>{{ p.quantite }}</td>
+                <td>{{ p.prix_unitaire }} DH</td>
+                <td>{{ p.total }} DH</td>
+                <td>{{ p.date }}</td>
+                <td>
+                    <a href="{% url 'dashboard_part_edit' p.id %}" class="btn btn-sm btn-darkpro">Modifier</a>
+                    <a href="{% url 'dashboard_part_delete' p.id %}" class="btn btn-sm btn-red">Supprimer</a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="7">Aucune pièce.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

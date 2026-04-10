@@ -1,0 +1,48 @@
+{% extends 'dashboard/base_dashboard.html' %}
+{% block dashboard_content %}
+<div class="toolbar">
+    <div>
+        <h1 class="mb-1">Unités réelles</h1>
+        <p class="mini-muted mb-0">Voitures physiques de la flotte</p>
+    </div>
+    <a href="{% url 'dashboard_car_unit_add' %}" class="btn btn-red">Ajouter unité</a>
+</div>
+
+<div class="panel-card">
+    <div class="table-wrap">
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>Modèle</th>
+                    <th>Plaque</th>
+                    <th>Transmission</th>
+                    <th>Carburant</th>
+                    <th>Couleur</th>
+                    <th>KM</th>
+                    <th>Entretien</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for unit in units %}
+                <tr>
+                    <td>{{ unit.car_model }}</td>
+                    <td>{{ unit.immatriculation }}</td>
+                    <td>{{ unit.get_transmission_display }}</td>
+                    <td>{{ unit.get_carburant_display }}</td>
+                    <td>{{ unit.couleur }}</td>
+                    <td>{{ unit.kilometrage_actuel }}</td>
+                    <td>{{ unit.date_prochain_entretien|default:"-" }}</td>
+                    <td>
+                        <a href="{% url 'dashboard_car_unit_edit' unit.id %}" class="btn btn-sm btn-darkpro">Modifier</a>
+                        <a href="{% url 'dashboard_car_unit_delete' unit.id %}" class="btn btn-sm btn-red">Supprimer</a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="8">Aucune unité réelle.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

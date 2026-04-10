@@ -1,0 +1,450 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+    .detail-page {
+        padding-top: 8px;
+    }
+
+    .detail-wrap {
+        display: grid;
+        grid-template-columns: 1.08fr 0.92fr;
+        gap: 28px;
+        align-items: start;
+    }
+
+    .detail-visual {
+        background:
+            radial-gradient(circle at bottom left, rgba(225, 6, 0, 0.08), transparent 30%),
+            linear-gradient(145deg, #0c0c0d, #141416);
+        border: 1px solid rgba(255,255,255,0.05);
+        border-radius: 28px;
+        padding: 22px;
+        box-shadow: 0 18px 38px rgba(0,0,0,0.32);
+    }
+
+    .main-image-wrap {
+        border-radius: 22px;
+        overflow: hidden;
+        background: #0a0a0b;
+        min-height: 460px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .detail-main-image {
+        width: 100%;
+        max-height: 520px;
+        object-fit: contain;
+        display: block;
+        transition: opacity 0.25s ease;
+    }
+
+    .detail-panel {
+        background:
+            radial-gradient(circle at top right, rgba(225, 6, 0, 0.10), transparent 28%),
+            linear-gradient(145deg, #121214, #1a1b1e);
+        color: #fff;
+        border-radius: 28px;
+        padding: 30px;
+        border: 1px solid rgba(255,255,255,0.06);
+        box-shadow: 0 18px 38px rgba(0,0,0,0.30);
+    }
+
+    .detail-title {
+        font-size: 2.4rem;
+        font-weight: 900;
+        margin-bottom: 8px;
+        line-height: 1.04;
+        color: #fff;
+    }
+
+    .detail-subtitle {
+        color: #a8a8a8;
+        margin-bottom: 20px;
+        font-size: 1rem;
+    }
+
+    .choice-title {
+        font-size: 0.9rem;
+        font-weight: 900;
+        color: #ffffff;
+        margin-bottom: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+    }
+
+    .transmission-picker {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+        margin-bottom: 22px;
+    }
+
+    .transmission-option {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 150px;
+        padding: 12px 16px;
+        border-radius: 14px;
+        background: rgba(255,255,255,0.04);
+        border: 1px solid rgba(255,255,255,0.08);
+        color: #fff;
+        font-weight: 800;
+        transition: 0.2s ease;
+        cursor: pointer;
+        text-decoration: none;
+    }
+
+    .transmission-option:hover {
+        border-color: rgba(225, 6, 0, 0.45);
+        background: rgba(225, 6, 0, 0.12);
+        color: #fff;
+        transform: translateY(-1px);
+    }
+
+    .transmission-option.active {
+        background: #e10600;
+        color: #fff;
+        border-color: #e10600;
+        box-shadow: 0 12px 24px rgba(225, 6, 0, 0.22);
+    }
+
+    .transmission-single {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 180px;
+        padding: 12px 16px;
+        border-radius: 14px;
+        background: #e10600;
+        color: #fff;
+        font-weight: 800;
+        margin-bottom: 22px;
+        box-shadow: 0 12px 24px rgba(225, 6, 0, 0.22);
+    }
+
+    .detail-list {
+        list-style: none;
+        padding: 0;
+        margin: 0 0 22px 0;
+        border-radius: 18px;
+        overflow: hidden;
+        border: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .detail-list li {
+        background: rgba(255,255,255,0.03);
+        color: #fff;
+        padding: 17px 18px;
+        border-bottom: 1px solid rgba(255,255,255,0.07);
+    }
+
+    .detail-list li:last-child {
+        border-bottom: none;
+    }
+
+    .detail-price-wrap {
+        margin: 18px 0 22px 0;
+    }
+
+    .detail-price-old {
+        text-decoration: line-through;
+        color: #8d8d8d;
+        font-size: 0.98rem;
+        margin-bottom: 4px;
+    }
+
+    .detail-price {
+        font-size: 2.3rem;
+        font-weight: 900;
+        color: #2e79ff;
+        line-height: 1;
+    }
+
+    .detail-price-label {
+        color: #9b9b9b;
+        margin-top: 8px;
+        font-size: 0.95rem;
+    }
+
+    .detail-actions {
+        display: flex;
+        gap: 14px;
+        flex-wrap: wrap;
+        margin-bottom: 20px;
+    }
+
+    .rules-box {
+        background: rgba(255,255,255,0.03);
+        border: 1px solid rgba(255,255,255,0.06);
+        border-radius: 16px;
+        padding: 14px 16px;
+        font-size: 0.9rem;
+        color: #b6b6b6;
+    }
+
+    .rules-box strong {
+        color: #fff;
+        display: block;
+        margin-bottom: 6px;
+    }
+
+    .gallery-wrap {
+        margin-top: 18px;
+    }
+
+    .gallery-title {
+        color: #fff;
+        font-weight: 800;
+        margin-bottom: 12px;
+        font-size: 1rem;
+    }
+
+    .gallery-scroll {
+        display: flex;
+        gap: 14px;
+        overflow-x: auto;
+        overflow-y: hidden;
+        padding-bottom: 8px;
+        scroll-behavior: smooth;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .gallery-scroll::-webkit-scrollbar {
+        height: 8px;
+    }
+
+    .gallery-scroll::-webkit-scrollbar-thumb {
+        background: rgba(255,255,255,0.20);
+        border-radius: 999px;
+    }
+
+    .gallery-card {
+        min-width: 140px;
+        max-width: 140px;
+        flex-shrink: 0;
+        cursor: pointer;
+        user-select: none;
+    }
+
+    .gallery-thumb-wrap {
+        border-radius: 14px;
+        overflow: hidden;
+        border: 2px solid rgba(255,255,255,0.08);
+        transition: 0.2s ease;
+    }
+
+    .gallery-card.active .gallery-thumb-wrap {
+        border-color: #e10600;
+        box-shadow: 0 10px 18px rgba(225, 6, 0, 0.18);
+    }
+
+    .gallery-card img {
+        width: 100%;
+        height: 90px;
+        object-fit: cover;
+        display: block;
+    }
+
+    .gallery-card small {
+        display: block;
+        margin-top: 6px;
+        color: #d3d3d3;
+        text-align: center;
+        font-size: 0.82rem;
+    }
+
+    .detail-bottom-info {
+        margin-top: 18px;
+        padding: 15px 16px;
+        border-radius: 14px;
+        background: rgba(255,255,255,0.03);
+        color: #fff;
+        border: 1px solid rgba(255,255,255,0.06);
+    }
+
+    @media (max-width: 992px) {
+        .detail-wrap {
+            grid-template-columns: 1fr;
+        }
+
+        .detail-title {
+            font-size: 2rem;
+        }
+
+        .main-image-wrap {
+            min-height: 300px;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .detail-visual,
+        .detail-panel {
+            border-radius: 22px;
+            padding: 18px;
+        }
+
+        .detail-title {
+            font-size: 1.8rem;
+        }
+
+        .detail-price {
+            font-size: 2rem;
+        }
+
+        .transmission-option {
+            min-width: 130px;
+        }
+
+        .main-image-wrap {
+            min-height: 240px;
+        }
+    }
+</style>
+
+<div class="detail-page">
+    <div class="detail-wrap">
+        <div class="detail-visual">
+            <div class="main-image-wrap">
+                <img id="mainCarImage" src="{{ voiture.image_principale.url }}" class="detail-main-image" alt="{{ voiture.marque }} {{ voiture.modele }}">
+            </div>
+
+            <div class="gallery-wrap">
+                <div class="gallery-title">Galerie photos</div>
+
+                <div class="gallery-scroll">
+                    <div class="gallery-card active" data-image="{{ voiture.image_principale.url }}">
+                        <div class="gallery-thumb-wrap">
+                            <img src="{{ voiture.image_principale.url }}" alt="">
+                        </div>
+                        <small>Principale</small>
+                    </div>
+
+                    {% for img in galerie %}
+                    <div class="gallery-card" data-image="{{ img.image.url }}">
+                        <div class="gallery-thumb-wrap">
+                            <img src="{{ img.image.url }}" alt="">
+                        </div>
+                        <small>{{ img.get_type_image_display }}</small>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="detail-bottom-info">
+                <strong>Unités disponibles dans le parc :</strong> {{ voiture.units.count }}
+            </div>
+        </div>
+
+        <div class="detail-panel">
+            <h1 class="detail-title">{{ voiture.marque }} {{ voiture.modele }}</h1>
+            <p class="detail-subtitle">{{ voiture.description }}</p>
+
+            {% if transmissions|length > 1 %}
+                <div class="choice-title">Choisissez la transmission</div>
+                <div class="transmission-picker" id="transmissionPicker">
+                    {% for t in transmissions %}
+                        <button type="button"
+                                class="transmission-option"
+                                data-transmission="{{ t }}">
+                            {% if t == 'manuelle' %}
+                                Manuelle
+                            {% elif t == 'automatique' %}
+                                Automatique
+                            {% else %}
+                                {{ t }}
+                            {% endif %}
+                        </button>
+                    {% endfor %}
+                </div>
+            {% elif transmissions|length == 1 %}
+                <div class="choice-title">Transmission disponible</div>
+                <div class="transmission-single" id="singleTransmission"
+                     data-transmission="{{ transmissions.0 }}">
+                    {% if transmissions.0 == 'manuelle' %}
+                        Manuelle
+                    {% elif transmissions.0 == 'automatique' %}
+                        Automatique
+                    {% else %}
+                        {{ transmissions.0 }}
+                    {% endif %}
+                </div>
+            {% endif %}
+
+            <ul class="detail-list">
+                <li><strong>Année :</strong> {{ voiture.annee }}</li>
+                <li><strong>Places :</strong> {{ voiture.nombre_places }}</li>
+                <li><strong>Unités réelles dans la flotte :</strong> {{ voiture.units.count }}</li>
+            </ul>
+
+            <div class="detail-price-wrap">
+                {% if voiture.reduction_active and voiture.reduction_pourcentage > 0 %}
+                    <div class="detail-price-old">{{ voiture.prix_par_jour }} DH/jour</div>
+                    <div class="detail-price">{{ voiture.prix_final }} DH/jour</div>
+                {% else %}
+                    <div class="detail-price">{{ voiture.prix_par_jour }} DH/jour</div>
+                {% endif %}
+                <div class="detail-price-label">Tarif journalier</div>
+            </div>
+
+            <div class="detail-actions">
+                <a id="reserveButton"
+                   href="{% url 'choose_reservation_type' voiture.id %}"
+                   class="btn btn-red btn-lg">
+                    Réserver
+                </a>
+            </div>
+
+            <div class="rules-box">
+                <strong>Conditions principales</strong>
+                Permis valide depuis au moins 2 ans, pièce d’identité valide, respect des horaires convenus, véhicule rendu dans l’état prévu et conduite responsable obligatoire.
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const mainImage = document.getElementById('mainCarImage');
+    const galleryCards = document.querySelectorAll('.gallery-card');
+
+    galleryCards.forEach(card => {
+        card.addEventListener('click', function () {
+            const newImage = this.getAttribute('data-image');
+            if (newImage && mainImage) {
+                mainImage.style.opacity = '0.4';
+                setTimeout(() => {
+                    mainImage.src = newImage;
+                    mainImage.style.opacity = '1';
+                }, 120);
+            }
+
+            galleryCards.forEach(c => c.classList.remove('active'));
+            this.classList.add('active');
+        });
+    });
+
+    const reserveButton = document.getElementById('reserveButton');
+    const transmissionButtons = document.querySelectorAll('.transmission-option');
+    const singleTransmission = document.getElementById('singleTransmission');
+
+    let selectedTransmission = '';
+
+    if (singleTransmission) {
+        selectedTransmission = singleTransmission.dataset.transmission;
+        reserveButton.href = "{% url 'choose_reservation_type' voiture.id %}?transmission=" + selectedTransmission;
+    }
+
+    transmissionButtons.forEach(btn => {
+        btn.addEventListener('click', function () {
+            transmissionButtons.forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+
+            selectedTransmission = this.dataset.transmission;
+            reserveButton.href = "{% url 'choose_reservation_type' voiture.id %}?transmission=" + selectedTransmission;
+        });
+    });
+</script>
+{% endblock %}

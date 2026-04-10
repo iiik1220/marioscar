@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>Entretiens</h1>
+    <a href="{% url 'dashboard_maintenance_add' %}" class="btn btn-red">Ajouter entretien</a>
+</div>
+
+<div class="card p-3">
+    <table class="table table-dark table-striped align-middle">
+        <thead>
+            <tr>
+                <th>Voiture</th>
+                <th>Titre</th>
+                <th>Date</th>
+                <th>KM</th>
+                <th>Coût</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for m in maintenances %}
+            <tr>
+                <td>{{ m.voiture }}</td>
+                <td>{{ m.titre }}</td>
+                <td>{{ m.date_entretien }}</td>
+                <td>{{ m.kilometrage }}</td>
+                <td>{{ m.cout }} DH</td>
+                <td>
+                    <a href="{% url 'dashboard_maintenance_edit' m.id %}" class="btn btn-sm btn-darkpro">Modifier</a>
+                    <a href="{% url 'dashboard_maintenance_delete' m.id %}" class="btn btn-sm btn-red">Supprimer</a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="6">Aucun entretien.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

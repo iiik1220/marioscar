@@ -1,0 +1,442 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+    .home-hero {
+        position: relative;
+        overflow: hidden;
+        border-radius: 28px;
+        padding: 42px 34px;
+        margin-bottom: 34px;
+        background:
+            radial-gradient(circle at top right, rgba(225, 6, 0, 0.16), transparent 28%),
+            radial-gradient(circle at bottom left, rgba(255,255,255,0.05), transparent 22%),
+            linear-gradient(145deg, #0f0f10, #171717 45%, #0d0d0e);
+        border: 1px solid rgba(255,255,255,0.06);
+        box-shadow: 0 18px 40px rgba(0,0,0,0.32);
+    }
+
+    .home-hero-badge {
+        display: inline-block;
+        background: rgba(225, 6, 0, 0.12);
+        color: #ff544d;
+        border: 1px solid rgba(225, 6, 0, 0.22);
+        padding: 8px 14px;
+        border-radius: 999px;
+        font-size: 0.85rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1.2px;
+        margin-bottom: 16px;
+    }
+
+    .home-hero-title {
+        font-size: 3rem;
+        line-height: 1.05;
+        font-weight: 900;
+        color: #fff;
+        margin-bottom: 14px;
+        max-width: 760px;
+    }
+
+    .home-hero-text {
+        color: #bdbdbd;
+        font-size: 1.05rem;
+        max-width: 720px;
+        margin-bottom: 0;
+    }
+
+    .search-box {
+        background: linear-gradient(145deg, #111111, #181818);
+        padding: 24px;
+        border-radius: 24px;
+        box-shadow: 0 12px 30px rgba(0,0,0,0.22);
+        border: 1px solid rgba(255,255,255,0.06);
+        margin-bottom: 34px;
+    }
+
+    .search-title {
+        font-size: 1.2rem;
+        font-weight: 800;
+        color: #fff;
+        margin-bottom: 4px;
+    }
+
+    .search-subtitle {
+        color: #a9a9a9;
+        margin-bottom: 18px;
+    }
+
+    .results-strip {
+        background: rgba(255,255,255,0.04);
+        border: 1px solid rgba(255,255,255,0.06);
+        border-radius: 18px;
+        padding: 14px 18px;
+        margin-bottom: 26px;
+        color: #e2e2e2;
+    }
+
+    .catalog-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: end;
+        gap: 16px;
+        flex-wrap: wrap;
+        margin-bottom: 22px;
+    }
+
+    .catalog-title {
+        font-size: 2rem;
+        font-weight: 900;
+        color: #fff;
+        margin: 0;
+    }
+
+    .catalog-subtitle {
+        color: #a6a6a6;
+        margin: 0;
+    }
+
+    .car-card {
+        background: linear-gradient(145deg, #101010, #171717);
+        border: 1px solid rgba(255,255,255,0.07);
+        border-radius: 24px;
+        overflow: hidden;
+        box-shadow: 0 12px 28px rgba(0,0,0,0.25);
+        transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+        height: 100%;
+    }
+
+    .car-card:hover {
+        transform: translateY(-6px);
+        box-shadow: 0 18px 36px rgba(0,0,0,0.32);
+        border-color: rgba(225, 6, 0, 0.22);
+    }
+
+    .car-image-wrap {
+        position: relative;
+        overflow: hidden;
+    }
+
+    .car-image-wrap img {
+        width: 100%;
+        height: 235px;
+        object-fit: cover;
+        transition: transform 0.35s ease;
+        display: block;
+    }
+
+    .car-card:hover .car-image-wrap img {
+        transform: scale(1.04);
+    }
+
+    .car-badge-top {
+        position: absolute;
+        top: 14px;
+        left: 14px;
+        background: rgba(0,0,0,0.72);
+        color: #fff;
+        border: 1px solid rgba(255,255,255,0.08);
+        border-radius: 999px;
+        padding: 7px 12px;
+        font-size: 0.8rem;
+        font-weight: 700;
+        backdrop-filter: blur(6px);
+    }
+
+    .car-discount-badge {
+        position: absolute;
+        top: 14px;
+        right: 14px;
+        background: #e10600;
+        color: #fff;
+        border-radius: 999px;
+        padding: 7px 12px;
+        font-size: 0.8rem;
+        font-weight: 800;
+        box-shadow: 0 8px 18px rgba(225, 6, 0, 0.28);
+    }
+
+    .car-card-body {
+        padding: 20px;
+    }
+
+    .car-title {
+        font-size: 1.55rem;
+        font-weight: 900;
+        color: #fff;
+        margin-bottom: 6px;
+    }
+
+    .car-meta {
+        color: #b3b3b3;
+        margin-bottom: 16px;
+        font-size: 0.96rem;
+        min-height: 24px;
+    }
+
+    .car-specs {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-bottom: 18px;
+    }
+
+    .car-spec {
+        background: rgba(255,255,255,0.05);
+        color: #e5e5e5;
+        border: 1px solid rgba(255,255,255,0.06);
+        padding: 8px 12px;
+        border-radius: 12px;
+        font-size: 0.88rem;
+        font-weight: 600;
+    }
+
+    .car-price-block {
+        margin-bottom: 18px;
+    }
+
+    .price-old {
+        text-decoration: line-through;
+        color: #8d8d8d;
+        font-size: 0.95rem;
+        display: block;
+        margin-bottom: 2px;
+    }
+
+    .price-new {
+        font-size: 2rem;
+        line-height: 1;
+        font-weight: 900;
+        color: #ffffff;
+    }
+
+    .price-label {
+        color: #aaaaaa;
+        font-size: 0.92rem;
+        margin-top: 4px;
+    }
+
+    .car-actions {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+    }
+
+    .car-actions .btn {
+        border-radius: 14px;
+        padding: 12px 14px;
+        font-weight: 800;
+    }
+
+    .btn-view {
+        background: #1b1f27;
+        border: 1px solid rgba(255,255,255,0.08);
+        color: #fff;
+    }
+
+    .btn-view:hover {
+        background: #252a35;
+        color: #fff;
+    }
+
+    .btn-book {
+        background: #e10600;
+        color: #fff;
+        border: none;
+    }
+
+    .btn-book:hover {
+        background: #ff2c24;
+        color: #fff;
+    }
+
+    .empty-state {
+        background: linear-gradient(145deg, #111111, #191919);
+        border: 1px solid rgba(255,255,255,0.06);
+        border-radius: 22px;
+        padding: 34px 24px;
+        text-align: center;
+        color: #d2d2d2;
+        box-shadow: 0 12px 26px rgba(0,0,0,0.22);
+    }
+
+    .empty-state-title {
+        font-size: 1.45rem;
+        font-weight: 900;
+        color: #fff;
+        margin-bottom: 8px;
+    }
+
+    .empty-state-text {
+        color: #a9a9a9;
+        margin-bottom: 0;
+    }
+
+    @media (max-width: 992px) {
+        .home-hero-title {
+            font-size: 2.35rem;
+        }
+
+        .car-title {
+            font-size: 1.35rem;
+        }
+
+        .price-new {
+            font-size: 1.8rem;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .home-hero {
+            padding: 26px 20px;
+            border-radius: 22px;
+        }
+
+        .home-hero-title {
+            font-size: 1.9rem;
+        }
+
+        .home-hero-text {
+            font-size: 0.98rem;
+        }
+
+        .search-box {
+            padding: 20px;
+            border-radius: 20px;
+        }
+
+        .catalog-title {
+            font-size: 1.6rem;
+        }
+
+        .car-image-wrap img {
+            height: 210px;
+        }
+
+        .car-actions {
+            grid-template-columns: 1fr;
+        }
+
+        .price-new {
+            font-size: 1.7rem;
+        }
+    }
+</style>
+
+<section class="home-hero">
+    <span class="home-hero-badge">Marios Car</span>
+    <h1 class="home-hero-title">Choisissez votre véhicule</h1>
+    <p class="home-hero-text">
+        Une sélection de véhicules adaptée à vos besoins, avec un style premium et des tarifs clairs.
+        Choisissez vos dates et la transmission souhaitée.
+    </p>
+</section>
+
+<div class="search-box">
+    <div class="search-title">Vérifier la disponibilité</div>
+    <div class="search-subtitle">Choisissez vos dates et, si besoin, le type de transmission.</div>
+
+    <form method="get" class="row g-3 align-items-end">
+        <div class="col-md-3">
+            <label class="form-label">Transmission</label>
+            {{ search_form.transmission }}
+        </div>
+        <div class="col-md-3">
+            <label class="form-label">Date de début</label>
+            {{ search_form.date_debut }}
+        </div>
+        <div class="col-md-3">
+            <label class="form-label">Date de fin</label>
+            {{ search_form.date_fin }}
+        </div>
+        <div class="col-md-3 d-flex gap-2">
+            <button type="submit" class="btn btn-red w-100">Vérifier disponibilité</button>
+            <a href="{% url 'home' %}" class="btn btn-darkpro">Reset</a>
+        </div>
+    </form>
+</div>
+
+{% if selected_date_debut and selected_date_fin %}
+    <div class="results-strip">
+        Résultats pour la période :
+        <strong>{{ selected_date_debut }}</strong> → <strong>{{ selected_date_fin }}</strong>
+        {% if selected_transmission %}
+            | Transmission :
+            <strong>
+                {% if selected_transmission == 'manuelle' %}
+                    Manuelle
+                {% elif selected_transmission == 'automatique' %}
+                    Automatique
+                {% else %}
+                    {{ selected_transmission }}
+                {% endif %}
+            </strong>
+        {% endif %}
+    </div>
+{% endif %}
+
+<div class="catalog-header">
+    <div>
+        <h2 class="catalog-title">Choisissez votre véhicule</h2>
+        <p class="catalog-subtitle">Une fiche affiche un modèle, puis le système choisit une unité réelle disponible selon votre transmission.</p>
+    </div>
+</div>
+
+<div class="row g-4">
+    {% for voiture in voitures %}
+    <div class="col-md-6 col-xl-4">
+        <div class="car-card">
+            <div class="car-image-wrap">
+                <img src="{{ voiture.image_principale.url }}" alt="{{ voiture.marque }} {{ voiture.modele }}">
+                <span class="car-badge-top">{{ voiture.annee }}</span>
+
+                {% if voiture.reduction_active and voiture.reduction_pourcentage > 0 %}
+                    <span class="car-discount-badge">-{{ voiture.reduction_pourcentage }}%</span>
+                {% endif %}
+            </div>
+
+            <div class="car-card-body">
+                <h3 class="car-title">{{ voiture.marque }} {{ voiture.modele }}</h3>
+
+                <div class="car-meta">
+                    {% if voiture.transmissions_display %}
+                        Transmissions : {{ voiture.transmissions_display }}
+                    {% endif %}
+                </div>
+
+                <div class="car-specs">
+                    <span class="car-spec">{{ voiture.nombre_places }} places</span>
+                    <span class="car-spec">{{ voiture.units.count }} unité(s)</span>
+                    <span class="car-spec">Disponibles : {{ voiture.available_count }}</span>
+                </div>
+
+                <div class="car-price-block">
+                    {% if voiture.reduction_active and voiture.reduction_pourcentage > 0 %}
+                        <span class="price-old">{{ voiture.prix_par_jour }} DH / jour</span>
+                        <div class="price-new">{{ voiture.prix_final }} DH</div>
+                    {% else %}
+                        <div class="price-new">{{ voiture.prix_par_jour }} DH</div>
+                    {% endif %}
+                    <div class="price-label">par jour</div>
+                </div>
+
+                <div class="car-actions">
+                    <a href="{% url 'car_detail' voiture.id %}" class="btn btn-view">Voir détails</a>
+                    <a href="{% url 'choose_reservation_type' voiture.id %}" class="btn btn-book">Réserver</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="col-12">
+        <div class="empty-state">
+            <div class="empty-state-title">Aucun véhicule disponible</div>
+            <p class="empty-state-text">
+                Aucun véhicule ne correspond à cette période ou à cette transmission.
+            </p>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

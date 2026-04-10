@@ -1,0 +1,99 @@
+{% extends 'dashboard/base_dashboard.html' %}
+{% block dashboard_content %}
+
+<style>
+    .finance-form-shell {
+        max-width: 760px;
+    }
+
+    .finance-form-card {
+        background: linear-gradient(145deg, #111111, #1a1a1a);
+        border: 1px solid rgba(255,255,255,0.07);
+        border-radius: 24px;
+        padding: 26px;
+        box-shadow: 0 12px 28px rgba(0,0,0,0.24);
+    }
+
+    .finance-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+    }
+
+    .finance-full {
+        grid-column: 1 / -1;
+    }
+
+    .finance-field label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 700;
+        color: #fff;
+    }
+
+    .finance-field input,
+    .finance-field select,
+    .finance-field textarea {
+        width: 100%;
+    }
+
+    .finance-help {
+        background: rgba(255,255,255,0.04);
+        border: 1px solid rgba(255,255,255,0.06);
+        border-radius: 16px;
+        padding: 14px 16px;
+        color: #b8b8b8;
+        margin-bottom: 18px;
+    }
+
+    @media (max-width: 768px) {
+        .finance-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<div class="finance-form-shell">
+    <div class="toolbar">
+        <div>
+            <h1 class="mb-1">{{ title }}</h1>
+            <p class="mini-muted mb-0">Saisie simple et rapide</p>
+        </div>
+    </div>
+
+    <div class="finance-form-card">
+        <div class="finance-help">
+            Remplis seulement ce qui est utile. Les champs cachés ou non affichés ne sont pas nécessaires pour cette opération.
+        </div>
+
+        <form method="post">
+            {% csrf_token %}
+
+            <div class="finance-grid">
+                {% for field in form.visible_fields %}
+                    <div class="finance-field {% if field.name == 'note' or field.name == 'categorie_libre' %}finance-full{% endif %}">
+                        {{ field.label_tag }}
+                        {{ field }}
+                        {% if field.help_text %}
+                            <small class="mini-muted d-block mt-1">{{ field.help_text }}</small>
+                        {% endif %}
+                        {% for error in field.errors %}
+                            <small class="text-danger d-block mt-1">{{ error }}</small>
+                        {% endfor %}
+                    </div>
+                {% endfor %}
+            </div>
+
+            {% for hidden in form.hidden_fields %}
+                {{ hidden }}
+            {% endfor %}
+
+            <div class="d-flex gap-2 flex-wrap mt-4">
+                <button type="submit" class="btn btn-red">Enregistrer</button>
+                <a href="{% url 'dashboard_finance' %}" class="btn btn-darkpro">Retour</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% endblock %}

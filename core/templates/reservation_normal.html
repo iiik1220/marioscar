@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+    .reservation-card {
+        max-width: 900px;
+        margin: 0 auto;
+        background: linear-gradient(145deg, #111111, #1a1a1a);
+        border: 1px solid rgba(255,255,255,0.07);
+        border-radius: 24px;
+        padding: 28px;
+        box-shadow: 0 12px 28px rgba(0,0,0,0.25);
+    }
+
+    .reservation-help {
+        background: rgba(255,255,255,0.04);
+        border: 1px solid rgba(255,255,255,0.06);
+        border-radius: 16px;
+        padding: 14px 16px;
+        color: #b8b8b8;
+        margin-bottom: 18px;
+    }
+</style>
+
+<div class="reservation-card">
+    <h1 class="mb-2">Paiement espèces</h1>
+    <p class="mb-3"><strong>{{ voiture.marque }} {{ voiture.modele }}</strong></p>
+
+    {% if selected_transmission %}
+    <div class="reservation-help">
+        <strong>Transmission choisie :</strong>
+        {% if selected_transmission == 'manuelle' %}Manuelle{% elif selected_transmission == 'automatique' %}Automatique{% else %}{{ selected_transmission }}{% endif %}
+    </div>
+    {% endif %}
+
+    <div class="reservation-help">
+        Saisissez vos informations. Le règlement se fera en espèces / à la livraison selon validation de l’agence.
+    </div>
+
+    <form method="post">
+        {% csrf_token %}
+
+        {{ form.requested_transmission.as_hidden }}
+
+        <p>{{ form.nom_complet.label_tag }} {{ form.nom_complet }}</p>
+        <p>{{ form.email.label_tag }} {{ form.email }}</p>
+        <p>{{ form.telephone.label_tag }} {{ form.telephone }}</p>
+        <p>{{ form.adresse.label_tag }} {{ form.adresse }}</p>
+        <p>{{ form.cin.label_tag }} {{ form.cin }}</p>
+        <p>{{ form.numero_permis.label_tag }} {{ form.numero_permis }}</p>
+        <p>{{ form.date_debut.label_tag }} {{ form.date_debut }}</p>
+        <p>{{ form.date_fin.label_tag }} {{ form.date_fin }}</p>
+
+        <div class="d-flex gap-2 flex-wrap mt-4">
+            <button type="submit" class="btn btn-red">Envoyer la demande</button>
+            <a href="{% url 'car_detail' voiture.id %}" class="btn btn-darkpro">Retour</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

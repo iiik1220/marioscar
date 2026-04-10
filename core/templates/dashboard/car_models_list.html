@@ -1,0 +1,33 @@
+{% extends 'dashboard/base_dashboard.html' %}
+{% block dashboard_content %}
+<div class="toolbar">
+    <div>
+        <h1 class="mb-1">Modèles voiture</h1>
+        <p class="mini-muted mb-0">Fiches publiques affichées sur le site</p>
+    </div>
+    <a href="{% url 'dashboard_car_model_add' %}" class="btn btn-red">Ajouter modèle</a>
+</div>
+
+<div class="card-list">
+    {% for car in cars %}
+    <div class="entity-card">
+        <img src="{{ car.image_principale.url }}" alt="{{ car }}">
+        <div class="entity-card-body">
+            <div class="entity-title">{{ car.marque }} {{ car.modele }}</div>
+            <div class="entity-meta">
+                {{ car.annee }} • {{ car.nombre_places }} places<br>
+                {{ car.units.count }} unité(s) réelle(s)
+            </div>
+            <p><strong>Prix :</strong> {{ car.prix_final }} DH / jour</p>
+
+            <div class="entity-actions">
+                <a href="{% url 'dashboard_car_model_edit' car.id %}" class="btn btn-darkpro btn-sm">Modifier</a>
+                <a href="{% url 'dashboard_car_model_delete' car.id %}" class="btn btn-red btn-sm">Supprimer</a>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="panel-card">Aucun modèle pour le moment.</div>
+    {% endfor %}
+</div>
+{% endblock %}

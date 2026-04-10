@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+{% block content %}
+<h1 class="mb-4">Gérer la réservation #{{ reservation.id }}</h1>
+
+<div class="card p-4">
+    <p><strong>Client :</strong> {{ reservation.nom_complet }}</p>
+    <p><strong>Voiture :</strong> {{ reservation.voiture }}</p>
+    <p><strong>Dates :</strong> {{ reservation.date_debut }} → {{ reservation.date_fin }}</p>
+    <p><strong>Total :</strong> {{ reservation.montant_total }} DH</p>
+
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-red">Mettre à jour</button>
+        <a href="{% url 'dashboard_reservations' %}" class="btn btn-darkpro">Retour</a>
+    </form>
+</div>
+{% endblock %}

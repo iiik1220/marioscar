@@ -1,0 +1,25 @@
+{% extends 'dashboard/base_dashboard.html' %}
+{% block dashboard_content %}
+<div class="toolbar">
+    <div>
+        <h1 class="mb-1">{{ title }}</h1>
+        <p class="text-secondary mb-0">Saisie et modification professionnelles</p>
+    </div>
+</div>
+
+<div class="form-panel">
+    <div class="help-box">
+        Remplis les champs utiles uniquement. Tu peux laisser vide ce qui ne s’applique pas à la situation.
+    </div>
+
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.as_p }}
+
+        <div class="d-flex gap-2 flex-wrap mt-4">
+            <button type="submit" class="btn btn-red">Enregistrer</button>
+            <a href="{% url 'dashboard' %}" class="btn btn-darkpro">Retour</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

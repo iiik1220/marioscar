@@ -11,7 +11,9 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.decorators import login_required, user_passes_test
-
+from django.contrib.auth.decorators import user_passes_test
+from .models import SiteSetting, Reservation
+from .forms import BookingControlForm, AdminManualReservationForm
 from .models import (
     CarModel, CarUnit, Reservation, Payment, Client, FinanceEntry,
     MaintenanceRecord, AccidentRecord, SparePartRecord
@@ -103,10 +105,8 @@ def car_detail(request, car_id):
         'transmissions': transmissions,
     })
 
-
 def choose_reservation_type(request, car_id):
     voiture = get_object_or_404(CarModel, id=car_id, actif=True)
-
     transmissions = voiture.available_transmissions()
 
     selected_transmission = request.GET.get('transmission', '').strip()
@@ -117,12 +117,15 @@ def choose_reservation_type(request, car_id):
     if selected_transmission and selected_transmission not in transmissions:
         selected_transmission = ''
 
-    return render(request, 'choose_reservation_type.html', {
+    site_settings = SiteSetting.load()
+
+    return render(request, 'choose_reservation_type.html'), {
         'voiture': voiture,
         'transmissions': transmissions,
         'selected_transmission': selected_transmission,
-    })
-
+        'allow_normal_booking': site_settings.allow_normal_booking,
+        'allow_online_payment': site_settings.allow_online_payment,
+    }
 
 def signup_view(request):
     if request.user.is_authenticated:
@@ -164,9 +167,14 @@ def login_view(request):
 def logout_view(request):
     logout(request)
     return redirect('home')
-
 def reservation_normal(request, car_id):
     voiture = get_object_or_404(CarModel, id=car_id, actif=True)
+
+    site_settings = SiteSetting.load()
+    if not site_settings.allow_normal_booking:
+        messages.error(request, "La réservation normale est actuellement indisponible.")
+        return redirect('choose_reservation_type', car_id=car_id)
+
     transmissions = voiture.available_transmissions()
 
     preselected_transmission = request.GET.get('transmission', '').strip()
@@ -201,7 +209,6 @@ def reservation_normal(request, car_id):
             reservation.statut = 'en_attente'
             reservation.kilometrage_depart = unit.kilometrage_actuel
 
-            # IMPORTANT
             if request.user.is_authenticated:
                 reservation.user = request.user
                 client = getattr(request.user, 'client_profile', None)
@@ -210,8 +217,10 @@ def reservation_normal(request, car_id):
 
             reservation.save()
 
-            messages.success(request, "Votre demande a été envoyée. Paiement à la livraison / en espèces.")
-            return redirect('my_reservations' if request.user.is_authenticated else 'home')
+            messages.success(request, "Votre demande de réservation a été envoyée avec succès.")
+            if request.user.is_authenticated:
+                return redirect('my_reservations')
+            return redirect('home')
 
     return render(request, 'reservation_normal.html', {
         'form': form,
@@ -219,9 +228,14 @@ def reservation_normal(request, car_id):
         'selected_transmission': preselected_transmission,
         'transmissions': transmissions,
     })
-@login_required
 def reservation_complete(request, car_id):
     voiture = get_object_or_404(CarModel, id=car_id, actif=True)
+
+    site_settings = SiteSetting.load()
+    if not site_settings.allow_online_payment:
+        messages.error(request, "Le paiement en ligne est actuellement indisponible.")
+        return redirect('choose_reservation_type', car_id=car_id)
+
     transmissions = voiture.available_transmissions()
 
     preselected_transmission = request.GET.get('transmission', '').strip()
@@ -265,6 +279,7 @@ def reservation_complete(request, car_id):
             reservation.statut = 'paiement_en_attente'
             reservation.kilometrage_depart = unit.kilometrage_actuel
             reservation.save()
+
             return redirect('checkout', reservation_id=reservation.id)
 
     return render(request, 'reservation_complete.html', {
@@ -273,7 +288,6 @@ def reservation_complete(request, car_id):
         'selected_transmission': preselected_transmission,
         'transmissions': transmissions,
     })
-
 @login_required
 def my_reservations(request):
     reservations = Reservation.objects.filter(
@@ -1038,3 +1052,84 @@ def get_paypal_access_token():
     )
     response.raise_for_status()
     return response.json()["access_token"]
+@staff_required
+def dashboard_booking_control(request):
+    settings_obj = SiteSetting.load()
+
+    control_form = BookingControlForm(
+        request.POST or None,
+        instance=settings_obj,
+        prefix='control'
+    )
+
+    manual_form = AdminManualReservationForm(
+        request.POST or None,
+        prefix='manual'
+    )
+
+    if request.method == 'POST':
+        if 'save_controls' in request.POST:
+            if control_form.is_valid():
+                control = control_form.save(commit=False)
+                control.pk = 1
+                control.save()
+                messages.success(request, "Paramètres de réservation mis à jour.")
+                return redirect('dashboard_booking_control')
+
+        elif 'save_manual_reservation' in request.POST:
+            if manual_form.is_valid():
+                car_model = manual_form.cleaned_data['car_model']
+                requested_transmission = manual_form.cleaned_data['requested_transmission']
+                date_debut = manual_form.cleaned_data['date_debut']
+                date_fin = manual_form.cleaned_data['date_fin']
+
+                if date_fin < date_debut:
+                    messages.error(request, "La date de fin doit être après la date de début.")
+                elif check_reservation_conflict(car_model, date_debut, date_fin, requested_transmission):
+                    messages.error(request, "Aucune unité disponible pour cette période.")
+                else:
+                    units = get_available_units(car_model, date_debut, date_fin, requested_transmission)
+                    if not units:
+                        messages.error(request, "Aucune unité trouvée.")
+                    else:
+                        unit = units[0]
+
+                        reservation = Reservation(
+                            car_model=car_model,
+                            car_unit=unit,
+                            requested_transmission=requested_transmission,
+                            nom_complet=manual_form.cleaned_data['nom_complet'],
+                            email=manual_form.cleaned_data['email'],
+                            telephone=manual_form.cleaned_data['telephone'],
+                            adresse=manual_form.cleaned_data['adresse'],
+                            cin=manual_form.cleaned_data['cin'],
+                            numero_permis=manual_form.cleaned_data['numero_permis'],
+                            date_debut=date_debut,
+                            date_fin=date_fin,
+                            type_reservation='normale',
+                            statut=manual_form.cleaned_data['statut'],
+                            kilometrage_depart=unit.kilometrage_actuel,
+                            est_annulable=False,
+                        )
+
+                        if hasattr(reservation, 'prix_par_jour_capture'):
+                            if hasattr(car_model, 'get_price_for_days'):
+                                jours = (date_fin - date_debut).days + 1
+                                reservation.prix_par_jour_capture = car_model.get_price_for_days(jours)
+                            else:
+                                reservation.prix_par_jour_capture = car_model.prix_final
+
+                        reservation.save()
+                        messages.success(request, "Réservation manuelle créée avec succès.")
+                        return redirect('dashboard_booking_control')
+
+    recent_manual_reservations = Reservation.objects.filter(
+        user__isnull=True
+    ).select_related('car_model', 'car_unit').order_by('-created_at')[:10]
+
+    return render(request, 'dashboard/booking_control.html', {
+        'control_form': control_form,
+        'manual_form': manual_form,
+        'settings_obj': settings_obj,
+        'recent_manual_reservations': recent_manual_reservations,
+    })

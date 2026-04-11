@@ -58,4 +58,5 @@ urlpatterns = [
     path('paypal/capture-order/<int:reservation_id>/', views.paypal_capture_order, name='paypal_capture_order'),
     path('dashboard/pieces/<int:part_id>/modifier/', views.dashboard_part_edit, name='dashboard_part_edit'),
     path('dashboard/pieces/<int:part_id>/supprimer/', views.dashboard_part_delete, name='dashboard_part_delete'),
+    path('dashboard/booking-control/', views.dashboard_booking_control, name='dashboard_booking_control'),
 ]

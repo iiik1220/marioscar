@@ -64,22 +64,32 @@
         {% endif %}
     </div>
 
-    <div class="choice-grid">
-        <div class="choice-card">
-            <h3>Réservation normale</h3>
-            <p>
-                Le client saisit ses informations et l’agence le recontacte ensuite.
-            </p>
-            <a href="{% url 'reservation_normal' voiture.id %}?transmission={{ selected_transmission }}" class="btn btn-red">Continuer</a>
+    {% if not allow_normal_booking and not allow_online_payment %}
+        <div class="alert alert-warning">
+            Les réservations sont temporairement indisponibles.
         </div>
+    {% else %}
+        <div class="choice-grid">
+            {% if allow_normal_booking %}
+            <div class="choice-card">
+                <h3>Réservation normale</h3>
+                <p>
+                    Le client saisit ses informations et l’agence le recontacte ensuite.
+                </p>
+                <a href="{% url 'reservation_normal' voiture.id %}?transmission={{ selected_transmission }}" class="btn btn-red">Continuer</a>
+            </div>
+            {% endif %}
 
-        <div class="choice-card">
-            <h3>Réservation complète</h3>
-            <p>
-                Le client connecté confirme ses dates et passe au paiement.
-            </p>
-            <a href="{% url 'reservation_complete' voiture.id %}?transmission={{ selected_transmission }}" class="btn btn-red">Continuer</a>
+            {% if allow_online_payment %}
+            <div class="choice-card">
+                <h3>Réservation complète</h3>
+                <p>
+                    Le client connecté confirme ses dates et passe au paiement en ligne.
+                </p>
+                <a href="{% url 'reservation_complete' voiture.id %}?transmission={{ selected_transmission }}" class="btn btn-red">Continuer</a>
+            </div>
+            {% endif %}
         </div>
-    </div>
+    {% endif %}
 </div>
 {% endblock %}

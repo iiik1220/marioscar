@@ -1,4 +1,6 @@
 from django import forms
+from django import forms
+from .models import SiteSetting, Reservation, CarModel
 from django.contrib.auth.models import User
 from .models import (
     Reservation, CarModel, CarUnit, CarImage, Client,
@@ -275,3 +277,46 @@ class SparePartForm(PrettyModelForm):
             'date': forms.DateInput(attrs={'type': 'date'}),
             'description': forms.Textarea(attrs={'rows': 3}),
         }
+class BookingControlForm(forms.ModelForm):
+    class Meta:
+        model = SiteSetting
+        fields = ['allow_normal_booking', 'allow_online_payment']
+        labels = {
+            'allow_normal_booking': 'Autoriser réservation normale',
+            'allow_online_payment': 'Autoriser paiement en ligne',
+        }
+
+
+class AdminManualReservationForm(forms.Form):
+    car_model = forms.ModelChoiceField(
+        queryset=CarModel.objects.filter(actif=True),
+        label="Voiture"
+    )
+    requested_transmission = forms.ChoiceField(
+        choices=[
+            ('', 'Transmission non imposée'),
+            ('manuelle', 'Manuelle'),
+            ('automatique', 'Automatique'),
+        ],
+        required=False,
+        label="Transmission souhaitée"
+    )
+
+    nom_complet = forms.CharField(max_length=150, label="Nom complet")
+    email = forms.EmailField(required=False, label="Email")
+    telephone = forms.CharField(max_length=30, label="Téléphone")
+    adresse = forms.CharField(max_length=255, required=False, label="Adresse / lieu de livraison")
+    cin = forms.CharField(max_length=50, required=False, label="CIN")
+    numero_permis = forms.CharField(max_length=100, required=False, label="Numéro de permis")
+
+    date_debut = forms.DateField(widget=forms.DateInput(attrs={'type': 'date'}), label="Date début")
+    date_fin = forms.DateField(widget=forms.DateInput(attrs={'type': 'date'}), label="Date fin")
+
+    statut = forms.ChoiceField(
+        choices=[
+            ('confirmee', 'Confirmée'),
+            ('en_attente', 'En attente'),
+        ],
+        initial='confirmee',
+        label="Statut"
+    )

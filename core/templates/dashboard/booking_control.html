@@ -1,0 +1,141 @@
+{% extends 'dashboard/base_dashboard.html' %}
+{% block dashboard_content %}
+
+<style>
+    .control-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 22px;
+    }
+
+    .control-card {
+        background: linear-gradient(145deg, #111111, #1a1a1a);
+        border: 1px solid rgba(255,255,255,0.07);
+        border-radius: 24px;
+        padding: 24px;
+        box-shadow: 0 12px 28px rgba(0,0,0,0.24);
+    }
+
+    .control-card h3 {
+        color: #fff;
+        margin-bottom: 14px;
+    }
+
+    .mini-box {
+        background: rgba(255,255,255,0.04);
+        border: 1px solid rgba(255,255,255,0.06);
+        border-radius: 16px;
+        padding: 14px 16px;
+        margin-bottom: 16px;
+        color: #bbb;
+    }
+
+    .recent-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .recent-table th,
+    .recent-table td {
+        padding: 10px;
+        border-bottom: 1px solid rgba(255,255,255,0.06);
+        color: #ddd;
+    }
+
+    .recent-table th {
+        color: #fff;
+    }
+
+    .full-width {
+        grid-column: 1 / -1;
+    }
+
+    @media (max-width: 900px) {
+        .control-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<div class="toolbar">
+    <div>
+        <h1 class="mb-1">Contrôle des réservations</h1>
+        <p class="mini-muted mb-0">Réservations hors site + activation / blocage des types de réservation</p>
+    </div>
+</div>
+
+<div class="control-grid">
+    <div class="control-card">
+        <h3>Activer / bloquer les réservations</h3>
+
+        <div class="mini-box">
+            <strong>État actuel :</strong><br>
+            Réservation normale :
+            {% if settings_obj.allow_normal_booking %}
+                <span class="positive">Activée</span>
+            {% else %}
+                <span class="negative">Bloquée</span>
+            {% endif %}
+            <br>
+            Paiement en ligne :
+            {% if settings_obj.allow_online_payment %}
+                <span class="positive">Activé</span>
+            {% else %}
+                <span class="negative">Bloqué</span>
+            {% endif %}
+        </div>
+
+        <form method="post">
+            {% csrf_token %}
+            {{ control_form.as_p }}
+            <button type="submit" name="save_controls" class="btn btn-red">Enregistrer paramètres</button>
+        </form>
+    </div>
+
+    <div class="control-card">
+        <h3>Créer une réservation hors site</h3>
+
+        <div class="mini-box">
+            Utilise ce formulaire pour les clients qui réservent par téléphone, WhatsApp ou directement à l’agence.
+        </div>
+
+        <form method="post">
+            {% csrf_token %}
+            {{ manual_form.as_p }}
+            <button type="submit" name="save_manual_reservation" class="btn btn-red">Créer la réservation</button>
+        </form>
+    </div>
+
+    <div class="control-card full-width">
+        <h3>Dernières réservations hors site</h3>
+
+        <table class="recent-table">
+            <thead>
+                <tr>
+                    <th>Client</th>
+                    <th>Voiture</th>
+                    <th>Période</th>
+                    <th>Téléphone</th>
+                    <th>Statut</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for r in recent_manual_reservations %}
+                <tr>
+                    <td>{{ r.nom_complet }}</td>
+                    <td>{{ r.car_model }}</td>
+                    <td>{{ r.date_debut }} → {{ r.date_fin }}</td>
+                    <td>{{ r.telephone }}</td>
+                    <td>{{ r.get_statut_display }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5">Aucune réservation hors site pour le moment.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% endblock %}

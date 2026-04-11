@@ -386,3 +386,16 @@ class SparePartRecord(models.Model):
     @property
     def total(self):
         return self.quantite * self.prix_unitaire
+    
+class SiteSetting(models.Model):
+    allow_normal_booking = models.BooleanField(default=True)
+    allow_online_payment = models.BooleanField(default=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def _str_(self):
+        return "Paramètres du site"
+
+    @classmethod
+    def load(cls):
+        obj, created = cls.objects.get_or_create(pk=1)
+        return obj

@@ -104,7 +104,6 @@ def car_detail(request, car_id):
         'galerie': galerie,
         'transmissions': transmissions,
     })
-
 def choose_reservation_type(request, car_id):
     voiture = get_object_or_404(CarModel, id=car_id, actif=True)
     transmissions = voiture.available_transmissions()
@@ -119,13 +118,13 @@ def choose_reservation_type(request, car_id):
 
     site_settings = SiteSetting.load()
 
-    return render(request, 'choose_reservation_type.html'), {
+    return render(request, 'choose_reservation_type.html', {
         'voiture': voiture,
         'transmissions': transmissions,
         'selected_transmission': selected_transmission,
         'allow_normal_booking': site_settings.allow_normal_booking,
         'allow_online_payment': site_settings.allow_online_payment,
-    }
+    })
 
 def signup_view(request):
     if request.user.is_authenticated:

@@ -176,54 +176,67 @@ def login_view(request):
 def logout_view(request):
     logout(request)
     return redirect('home')
-from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib import messages
-from datetime import datetime
+def reservation_normal(request, car_id):
+    voiture = get_object_or_404(CarModel, id=car_id, actif=True)
 
-def reservation_normale(request, car_id):
-    voiture = get_object_or_404(Voiture, id=car_id)
+    site_settings = SiteSetting.load()
+    if not site_settings.allow_normal_booking:
+        messages.error(request, "La réservation normale est actuellement indisponible.")
+        return redirect('choose_reservation_type', car_id=car_id)
 
-    if request.method == "POST":
-        try:
-            nom = request.POST.get('nom')
-            email = request.POST.get('email')
-            telephone = request.POST.get('telephone')
-            date_debut = request.POST.get('date_debut')
-            date_fin = request.POST.get('date_fin')
+    transmissions = voiture.available_transmissions()
 
-            # Vérification basique
-            if not nom or not date_debut or not date_fin:
-                messages.error(request, "Veuillez remplir tous les champs obligatoires.")
-                return redirect('reservation_normale', car_id=car_id)
+    preselected_transmission = request.GET.get('transmission', '').strip()
+    if len(transmissions) == 1:
+        preselected_transmission = transmissions[0]
 
-            # Convertir les dates
-            date_debut = datetime.strptime(date_debut, "%Y-%m-%d")
-            date_fin = datetime.strptime(date_fin, "%Y-%m-%d")
+    form = ReservationNormalForm(request.POST or None)
 
-            # Création réservation
-            Reservation.objects.create(
-                voiture=voiture,
-                nom_client=nom,
-                email=email,
-                telephone=telephone,
-                date_debut=date_debut,
-                date_fin=date_fin,
-                statut="en_attente",
-                type_reservation="normale"
-            )
+    if request.method == 'GET' and preselected_transmission:
+        form.fields['requested_transmission'].initial = preselected_transmission
 
-            messages.success(request, "Réservation envoyée avec succès.")
+    if request.method == 'POST' and form.is_valid():
+        date_debut = form.cleaned_data['date_debut']
+        date_fin = form.cleaned_data['date_fin']
+        requested_transmission = form.cleaned_data.get('requested_transmission') or ''
 
-            # 👉 REDIRECTION WHATSAPP
-            return redirect(f"/contact-whatsapp/?voiture={voiture.marque} {voiture.modele}")
+        if len(transmissions) == 1 and not requested_transmission:
+            requested_transmission = transmissions[0]
 
-        except Exception as e:
-            print("ERREUR:", e)
-            messages.error(request, "Erreur lors de la réservation.")
-            return redirect('reservation_normale', car_id=car_id)
+        if date_fin < date_debut:
+            messages.error(request, "La date de fin doit être après la date de début.")
+        elif check_reservation_conflict(voiture, date_debut, date_fin, requested_transmission):
+            messages.error(request, "Aucune unité disponible pour cette période avec ce choix de transmission.")
+        else:
+            unit = get_available_units(voiture, date_debut, date_fin, requested_transmission)[0]
 
-    return render(request, "reservation_normale.html", {
-        "voiture": voiture
+            reservation = form.save(commit=False)
+            reservation.car_model = voiture
+            reservation.car_unit = unit
+            reservation.requested_transmission = requested_transmission
+            reservation.type_reservation = 'normale'
+            reservation.statut = 'en_attente'
+            reservation.kilometrage_depart = unit.kilometrage_actuel
+
+            if request.user.is_authenticated:
+                reservation.user = request.user
+                client = getattr(request.user, 'client_profile', None)
+                if client:
+                    reservation.client = client
+
+            reservation.save()
+
+            messages.success(request, "Votre demande de réservation a été envoyée avec succès.")
+
+            # ✅ REDIRECTION WHATSAPP (NOUVEAU)
+            voiture_nom = f"{voiture.marque} {voiture.modele}"
+            return redirect(f"/contact-whatsapp/?voiture={voiture_nom}")
+
+    return render(request, 'reservation_normal.html', {
+        'form': form,
+        'voiture': voiture,
+        'selected_transmission': preselected_transmission,
+        'transmissions': transmissions,
     })
 def reservation_complete(request, car_id):
     voiture = get_object_or_404(CarModel, id=car_id, actif=True)

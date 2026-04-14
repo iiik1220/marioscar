@@ -320,3 +320,26 @@ class AdminManualReservationForm(forms.Form):
         initial='confirmee',
         label="Statut"
     )
+from .models import CarBlockPeriod, CarUnit
+
+class AdminCarBlockForm(forms.ModelForm):
+    class Meta:
+        model = CarBlockPeriod
+        fields = ['car_model', 'car_unit', 'date_debut', 'date_fin', 'motif']
+        widgets = {
+            'date_debut': forms.DateInput(attrs={'type': 'date'}),
+            'date_fin': forms.DateInput(attrs={'type': 'date'}),
+            'motif': forms.TextInput(attrs={'placeholder': 'Ex: maintenance, client VIP, indisponible...'}),
+        }
+        labels = {
+            'car_model': 'Voiture',
+            'car_unit': 'Unité réelle précise',
+            'date_debut': 'Date début',
+            'date_fin': 'Date fin',
+            'motif': 'Motif',
+        }
+
+    def _init_(self, *args, **kwargs):
+        super()._init_(*args, **kwargs)
+        self.fields['car_unit'].required = False
+        self.fields['car_unit'].queryset = CarUnit.objects.all().order_by('car_model_marque', 'car_model_modele', 'immatriculation')

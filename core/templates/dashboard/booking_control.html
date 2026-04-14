@@ -4,7 +4,7 @@
 <style>
     .control-grid {
         display: grid;
-        grid-template-columns: 1fr 1fr;
+        grid-template-columns: 1fr 1fr 1fr;
         gap: 22px;
     }
 
@@ -50,7 +50,7 @@
         grid-column: 1 / -1;
     }
 
-    @media (max-width: 900px) {
+    @media (max-width: 1100px) {
         .control-grid {
             grid-template-columns: 1fr;
         }
@@ -60,7 +60,7 @@
 <div class="toolbar">
     <div>
         <h1 class="mb-1">Contrôle des réservations</h1>
-        <p class="mini-muted mb-0">Réservations hors site + activation / blocage des types de réservation</p>
+        <p class="mini-muted mb-0">Blocage simple + réservations hors site + activation des modes de réservation</p>
     </div>
 </div>
 
@@ -93,10 +93,24 @@
     </div>
 
     <div class="control-card">
+        <h3>Blocage rapide d’une voiture</h3>
+
+        <div class="mini-box">
+            Utilise ceci pour bloquer une voiture ou une période sans créer de réservation client.
+        </div>
+
+        <form method="post">
+            {% csrf_token %}
+            {{ block_form.as_p }}
+            <button type="submit" name="save_block_period" class="btn btn-red">Bloquer la période</button>
+        </form>
+    </div>
+
+    <div class="control-card">
         <h3>Créer une réservation hors site</h3>
 
         <div class="mini-box">
-            Utilise ce formulaire pour les clients qui réservent par téléphone, WhatsApp ou directement à l’agence.
+            Pour les clients qui réservent par téléphone, WhatsApp ou directement à l’agence.
         </div>
 
         <form method="post">
@@ -104,6 +118,35 @@
             {{ manual_form.as_p }}
             <button type="submit" name="save_manual_reservation" class="btn btn-red">Créer la réservation</button>
         </form>
+    </div>
+
+    <div class="control-card full-width">
+        <h3>Derniers blocages</h3>
+
+        <table class="recent-table">
+            <thead>
+                <tr>
+                    <th>Voiture</th>
+                    <th>Unité</th>
+                    <th>Période</th>
+                    <th>Motif</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for b in recent_blocks %}
+                <tr>
+                    <td>{{ b.car_model }}</td>
+                    <td>{{ b.car_unit|default:"Toutes unités du modèle" }}</td>
+                    <td>{{ b.date_debut }} → {{ b.date_fin }}</td>
+                    <td>{{ b.motif|default:"-" }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="4">Aucun blocage pour le moment.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     </div>
 
     <div class="control-card full-width">

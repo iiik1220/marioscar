@@ -399,3 +399,20 @@ class SiteSetting(models.Model):
     def load(cls):
         obj, created = cls.objects.get_or_create(pk=1)
         return obj
+class CarBlockPeriod(models.Model):
+    car_model = models.ForeignKey('CarModel', on_delete=models.CASCADE, related_name='blocked_periods')
+    car_unit = models.ForeignKey('CarUnit', on_delete=models.SET_NULL, null=True, blank=True, related_name='blocked_periods')
+    date_debut = models.DateField()
+    date_fin = models.DateField()
+    motif = models.CharField(max_length=255, blank=True)
+    created_by = models.ForeignKey('auth.User', on_delete=models.SET_NULL, null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    actif = models.BooleanField(default=True)
+
+    class Meta:
+        ordering = ['-date_debut', '-id']
+
+    def _str_(self):
+        if self.car_unit:
+            return f"Blocage {self.car_unit} du {self.date_debut} au {self.date_fin}"
+        return f"Blocage {self.car_model} du {self.date_debut} au {self.date_fin}"

@@ -1,6 +1,8 @@
 from decimal import Decimal
 from collections import defaultdict
 import json
+from .models import CarBlockPeriod
+from .forms import AdminCarBlockForm
 import base64
 import json
 import requests
@@ -30,28 +32,36 @@ from .forms import (
 def staff_required(view_func):
     return login_required(user_passes_test(lambda u: u.is_staff or u.is_superuser)(view_func))
 
-
-def get_available_units(car_model, date_debut, date_fin, requested_transmission='', exclude_reservation_id=None):
-    units = car_model.units.filter(active=True)
+def get_available_units(car_model, date_debut, date_fin, requested_transmission=''):
+    units = car_model.units.filter(disponible=True)
 
     if requested_transmission:
         units = units.filter(transmission=requested_transmission)
 
-    available = []
+    available_units = []
+
     for unit in units:
-        if unit.is_available_for_period(date_debut, date_fin, exclude_reservation_id=exclude_reservation_id):
-            available.append(unit)
-    return available
+        reservation_conflict = Reservation.objects.filter(
+            car_unit=unit,
+            statut__in=ACTIVE_RESERVATION_STATUSES,
+            date_debut__lte=date_fin,
+            date_fin__gte=date_debut
+        ).exists()
 
+        block_conflict = CarBlockPeriod.objects.filter(
+            actif=True,
+            date_debut__lte=date_fin,
+            date_fin__gte=date_debut
+        ).filter(
+            models.Q(car_unit=unit) | models.Q(car_model=car_model, car_unit__isnull=True)
+        ).exists()
 
-def check_reservation_conflict(car_model, date_debut, date_fin, requested_transmission='', exclude_reservation_id=None):
-    return len(get_available_units(
-        car_model,
-        date_debut,
-        date_fin,
-        requested_transmission=requested_transmission,
-        exclude_reservation_id=exclude_reservation_id
-    )) == 0
+        if not reservation_conflict and not block_conflict:
+            available_units.append(unit)
+
+    return available_units
+def check_reservation_conflict(car_model, date_debut, date_fin, requested_transmission=''):
+    return len(get_available_units(car_model, date_debut, date_fin, requested_transmission)) == 0
 
 def home(request):
     car_models_qs = CarModel.objects.filter(actif=True)
@@ -1050,8 +1060,7 @@ def get_paypal_access_token():
         timeout=30,
     )
     response.raise_for_status()
-    return response.json()["access_token"]
-@staff_required
+    return response.json()["access_token"]@staff_required
 def dashboard_booking_control(request):
     settings_obj = SiteSetting.load()
 
@@ -1064,6 +1073,11 @@ def dashboard_booking_control(request):
     manual_form = AdminManualReservationForm(
         request.POST or None,
         prefix='manual'
+    )
+
+    block_form = AdminCarBlockForm(
+        request.POST or None,
+        prefix='block'
     )
 
     if request.method == 'POST':
@@ -1122,13 +1136,31 @@ def dashboard_booking_control(request):
                         messages.success(request, "Réservation manuelle créée avec succès.")
                         return redirect('dashboard_booking_control')
 
+        elif 'save_block_period' in request.POST:
+            if block_form.is_valid():
+                block = block_form.save(commit=False)
+
+                if block.date_fin < block.date_debut:
+                    messages.error(request, "La date de fin doit être après la date de début.")
+                else:
+                    block.created_by = request.user
+                    block.save()
+                    messages.success(request, "Période bloquée avec succès.")
+                    return redirect('dashboard_booking_control')
+
     recent_manual_reservations = Reservation.objects.filter(
         user__isnull=True
     ).select_related('car_model', 'car_unit').order_by('-created_at')[:10]
 
+    recent_blocks = CarBlockPeriod.objects.select_related(
+        'car_model', 'car_unit'
+    ).filter(actif=True).order_by('-created_at')[:10]
+
     return render(request, 'dashboard/booking_control.html', {
         'control_form': control_form,
         'manual_form': manual_form,
+        'block_form': block_form,
         'settings_obj': settings_obj,
         'recent_manual_reservations': recent_manual_reservations,
+        'recent_blocks': recent_blocks,
     })

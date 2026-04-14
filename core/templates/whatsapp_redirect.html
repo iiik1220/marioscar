@@ -1,0 +1,92 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+    .wa-box {
+        max-width: 700px;
+        margin: 60px auto;
+        background: linear-gradient(145deg, #111111, #1a1a1a);
+        border: 1px solid rgba(255,255,255,0.07);
+        border-radius: 24px;
+        padding: 36px;
+        text-align: center;
+        box-shadow: 0 12px 28px rgba(0,0,0,0.25);
+    }
+
+    .wa-icon {
+        width: 90px;
+        height: 90px;
+        margin: 0 auto 18px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        background: #25D366;
+        font-size: 42px;
+        color: white;
+        font-weight: bold;
+    }
+
+    .wa-title {
+        font-size: 2rem;
+        font-weight: 900;
+        margin-bottom: 12px;
+        color: #fff;
+    }
+
+    .wa-text {
+        color: #cfcfcf;
+        font-size: 1.05rem;
+        margin-bottom: 28px;
+    }
+
+    .wa-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        background: #25D366;
+        color: white;
+        text-decoration: none;
+        font-weight: 800;
+        padding: 14px 24px;
+        border-radius: 14px;
+        font-size: 1.05rem;
+        transition: 0.2s ease;
+    }
+
+    .wa-btn:hover {
+        background: #1ebe5d;
+        color: white;
+        transform: translateY(-1px);
+    }
+
+    .wa-note {
+        margin-top: 18px;
+        color: #999;
+        font-size: 0.95rem;
+    }
+</style>
+
+<div class="wa-box">
+    <div class="wa-icon">W</div>
+
+    <div class="wa-title">Veuillez nous contacter sur WhatsApp</div>
+
+    <div class="wa-text">
+        Merci pour votre demande.  
+        Pour confirmer rapidement votre réservation, merci de nous contacter directement sur WhatsApp.
+    </div>
+
+    <a
+        class="wa-btn"
+        href="https://wa.me/212600000000?text=Bonjour,%20je%20viens%20de%20faire%20une%20demande%20de%20r%C3%A9servation%20sur%20votre%20site."
+        target="_blank"
+    >
+        Contacter sur WhatsApp
+    </a>
+
+    <div class="wa-note">
+        Remplace le numéro par ton vrai numéro WhatsApp.
+    </div>
+</div>
+{% endblock %}

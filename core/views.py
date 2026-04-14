@@ -225,12 +225,10 @@ def reservation_normal(request, car_id):
                     reservation.client = client
 
             reservation.save()
-
             messages.success(request, "Votre demande de réservation a été envoyée avec succès.")
             if request.user.is_authenticated:
-                return redirect('my_reservations')
+             return redirect('my_reservations')
             return redirect('home')
-
     return render(request, 'reservation_normal.html', {
         'form': form,
         'voiture': voiture,
@@ -1171,3 +1169,5 @@ def cancel_block_period(request, block_id):
     block.save()
     messages.success(request, "Blocage annulé avec succès.")
     return redirect('dashboard_booking_control')
+def whatsapp_redirect_page(request):
+    return render(request, 'whatsapp_redirect.html')

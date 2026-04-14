@@ -60,4 +60,5 @@ urlpatterns = [
     path('dashboard/pieces/<int:part_id>/supprimer/', views.dashboard_part_delete, name='dashboard_part_delete'),
     path('dashboard/booking-control/', views.dashboard_booking_control, name='dashboard_booking_control'),
     path('dashboard/block/<int:block_id>/cancel/', views.cancel_block_period, name='cancel_block_period'),
+    path('contact-whatsapp/', views.whatsapp_redirect_page, name='whatsapp_redirect_page'),
 ]

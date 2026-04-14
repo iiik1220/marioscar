@@ -31,9 +31,8 @@ from .forms import (
 
 def staff_required(view_func):
     return login_required(user_passes_test(lambda u: u.is_staff or u.is_superuser)(view_func))
-
 def get_available_units(car_model, date_debut, date_fin, requested_transmission=''):
-    units = car_model.units.filter(disponible=True)
+    units = car_model.units.filter(active=True)
 
     if requested_transmission:
         units = units.filter(transmission=requested_transmission)

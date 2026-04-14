@@ -5,7 +5,7 @@ urlpatterns = [
     path('', views.home, name='home'),
     path('voiture/<int:car_id>/', views.car_detail, name='car_detail'),
     path('voiture/<int:car_id>/reserver/', views.choose_reservation_type, name='choose_reservation_type'),
-    path('voiture/<int:car_id>/reservation-normale/', views.reservation_normal, name='reservation_normal'),
+    path('voiture/<int:car_id>/reservation-normale/', views.reservation_normale, name='reservation_normale'),
     path('voiture/<int:car_id>/reservation-complete/', views.reservation_complete, name='reservation_complete'),
 
     path('inscription/', views.signup_view, name='signup'),

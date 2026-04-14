@@ -122,31 +122,36 @@
 
     <div class="control-card full-width">
         <h3>Derniers blocages</h3>
-
-        <table class="recent-table">
-            <thead>
-                <tr>
-                    <th>Voiture</th>
-                    <th>Unité</th>
-                    <th>Période</th>
-                    <th>Motif</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for b in recent_blocks %}
-                <tr>
-                    <td>{{ b.car_model }}</td>
-                    <td>{{ b.car_unit|default:"Toutes unités du modèle" }}</td>
-                    <td>{{ b.date_debut }} → {{ b.date_fin }}</td>
-                    <td>{{ b.motif|default:"-" }}</td>
-                </tr>
-                {% empty %}
-                <tr>
-                    <td colspan="4">Aucun blocage pour le moment.</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+<table class="recent-table">
+    <thead>
+        <tr>
+            <th>Voiture</th>
+            <th>Unité</th>
+            <th>Période</th>
+            <th>Motif</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for b in recent_blocks %}
+        <tr>
+            <td>{{ b.car_model }}</td>
+            <td>{{ b.car_unit|default:"Toutes unités du modèle" }}</td>
+            <td>{{ b.date_debut }} → {{ b.date_fin }}</td>
+            <td>{{ b.motif|default:"-" }}</td>
+            <td>
+                <a href="{% url 'cancel_block_period' b.id %}" class="btn btn-sm btn-red">
+                    Annuler
+                </a>
+            </td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="5">Aucun blocage pour le moment.</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
     </div>
 
     <div class="control-card full-width">

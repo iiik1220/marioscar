@@ -1164,3 +1164,10 @@ def dashboard_booking_control(request):
         'recent_manual_reservations': recent_manual_reservations,
         'recent_blocks': recent_blocks,
     })
+@staff_required
+def cancel_block_period(request, block_id):
+    block = get_object_or_404(CarBlockPeriod, id=block_id, actif=True)
+    block.actif = False
+    block.save()
+    messages.success(request, "Blocage annulé avec succès.")
+    return redirect('dashboard_booking_control')

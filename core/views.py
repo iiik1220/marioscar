@@ -4,7 +4,9 @@ import json
 from .models import CarBlockPeriod
 from .forms import AdminCarBlockForm
 import base64
+from django.db.models import Q
 import json
+from django.db import models
 import requests
 from django.conf import settings
 from django.http import JsonResponse
@@ -31,6 +33,7 @@ from .forms import (
 
 def staff_required(view_func):
     return login_required(user_passes_test(lambda u: u.is_staff or u.is_superuser)(view_func))
+
 def get_available_units(car_model, date_debut, date_fin, requested_transmission=''):
     units = car_model.units.filter(active=True)
 
@@ -38,6 +41,7 @@ def get_available_units(car_model, date_debut, date_fin, requested_transmission=
         units = units.filter(transmission=requested_transmission)
 
     available_units = []
+    ACTIVE_RESERVATION_STATUSES = ['en_attente', 'confirmee']
 
     for unit in units:
         reservation_conflict = Reservation.objects.filter(
